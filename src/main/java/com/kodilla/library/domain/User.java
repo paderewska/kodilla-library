@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "user")
+@Entity
 @Table(name = "USERS")
 public class User {
 
@@ -46,7 +46,7 @@ public class User {
         this.accountStartDate = accountStartDate;
     }
 
-    public User(Long id_user, String name, String surname, LocalDate accountStartDate) {
+    public User(Long id, String name, String surname, LocalDate accountStartDate) {
         this.id = id;
         this.name = name;
         this.surname = surname;

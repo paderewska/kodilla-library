@@ -1,7 +1,6 @@
 package com.kodilla.library.service;
 
 import com.kodilla.library.domain.*;
-import com.kodilla.library.mapper.BookCopyMapper;
 import com.kodilla.library.repository.BookCopyRepository;
 import com.kodilla.library.repository.BookRepository;
 import com.kodilla.library.repository.BorrowedBookRepository;
@@ -114,6 +113,4 @@ public class DbService {
         bookCopy1.setRentalStatus(RentalStatus.AVAILABLE);
         bookCopyRepository.save(bookCopy1);
     }
-
-
 }

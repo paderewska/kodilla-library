@@ -11,9 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "book")
+@Entity
 @Table(name = "BOOKS")
 public class Book {
 
@@ -41,6 +42,12 @@ public class Book {
             fetch = FetchType.LAZY
     )
     private List<BookCopy> bookCopies = new ArrayList<>();
+
+    public Book(String title, String author, Integer publicationYear) {
+        this.title = title;
+        this.author = author;
+        this.publicationYear = publicationYear;
+    }
 
     public Book(Long id, String title, String author, Integer publicationYear) {
         this.id = id;

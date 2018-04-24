@@ -1,6 +1,5 @@
 package com.kodilla.library.domain;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,13 +7,11 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.Optional;
 
 @Setter
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "borrowed_book")
+@Entity
 @Table(name = "BORROWED_BOOKS")
 public class BorrowedBook {
 
@@ -38,4 +35,18 @@ public class BorrowedBook {
     @Column(name = "return_book_date")
     private LocalDate returnBookDate;
 
+    public BorrowedBook(BookCopy bookCopy, User userId, LocalDate borrowedBookDate, LocalDate returnBookDate) {
+        this.bookCopy = bookCopy;
+        this.userId = userId;
+        this.borrowedBookDate = borrowedBookDate;
+        this.returnBookDate = returnBookDate;
+    }
+
+    public BorrowedBook(Long id, BookCopy bookCopy, User userId, LocalDate borrowedBookDate, LocalDate returnBookDate) {
+        this.id = id;
+        this.bookCopy = bookCopy;
+        this.userId = userId;
+        this.borrowedBookDate = borrowedBookDate;
+        this.returnBookDate = returnBookDate;
+    }
 }

@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "book_copy")
+@Entity
 @Table(name = "BOOK_COPIES")
 public class BookCopy {
 
@@ -37,7 +37,8 @@ public class BookCopy {
     )
     private List<BorrowedBook> borrowedBooks = new ArrayList<>();
 
-    public BookCopy(RentalStatus rentalStatus) {
+    public BookCopy(Book book, RentalStatus rentalStatus) {
+        this.book = book;
         this.rentalStatus = rentalStatus;
     }
 
