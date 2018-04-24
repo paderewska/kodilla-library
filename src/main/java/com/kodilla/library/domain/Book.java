@@ -49,6 +49,13 @@ public class Book {
         this.publicationYear = publicationYear;
     }
 
+    public Book(String title, String author, Integer publicationYear, List<BookCopy> bookCopies) {
+        this.title = title;
+        this.author = author;
+        this.publicationYear = publicationYear;
+        this.bookCopies = bookCopies;
+    }
+
     public Book(Long id, String title, String author, Integer publicationYear) {
         this.id = id;
         this.title = title;

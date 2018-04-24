@@ -96,21 +96,17 @@ public class DbService {
     }
 
     public BorrowedBook saveBorrowedBook(final BorrowedBook borrowedBook) {
-        Long id = borrowedBook.getBookCopy().getId();
-        updateRentalStatus(id, RentalStatus.BORROWED);
+        borrowedBook.getBookCopy().setRentalStatus(RentalStatus.BORROWED);
+        bookCopyRepository.save(borrowedBook.getBookCopy());
         return borrowedBookRepository.save(borrowedBook);
     }
 
     public void returnBorrowedBook(Long borrowedBookId) {
         Optional<BorrowedBook> borrowedBook = borrowedBookRepository.findById(borrowedBookId);
         BorrowedBook borrowedBook1 = borrowedBook.get();
+        borrowedBook1.getBookCopy().setRentalStatus(RentalStatus.AVAILABLE);
+        bookCopyRepository.save(borrowedBook1.getBookCopy());
         borrowedBook1.setReturnBookDate(LocalDate.now());
         borrowedBookRepository.save(borrowedBook1);
-
-        Long bookCopyId = borrowedBook1.getBookCopy().getId();
-        Optional<BookCopy> bookCopy = bookCopyRepository.findById(bookCopyId);
-        BookCopy bookCopy1 = bookCopy.get();
-        bookCopy1.setRentalStatus(RentalStatus.AVAILABLE);
-        bookCopyRepository.save(bookCopy1);
     }
 }

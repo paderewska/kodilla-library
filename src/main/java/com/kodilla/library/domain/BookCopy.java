@@ -37,6 +37,10 @@ public class BookCopy {
     )
     private List<BorrowedBook> borrowedBooks = new ArrayList<>();
 
+    public BookCopy(RentalStatus rentalStatus) {
+        this.rentalStatus = rentalStatus;
+    }
+
     public BookCopy(Book book, RentalStatus rentalStatus) {
         this.book = book;
         this.rentalStatus = rentalStatus;

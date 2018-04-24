@@ -12,10 +12,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -194,12 +194,11 @@ public class DbServiceTest {
     public void getAllBookCopies() {
 
         //Given
-        Book book1 = new Book("Ciekawa książka", "Interesujący autor", 2018);
+        List<BookCopy> theList = new ArrayList<>();
+        theList.add(new BookCopy(RentalStatus.AVAILABLE));
+        theList.add(new BookCopy(RentalStatus.NEW));
+        Book book1 = new Book("Ciekawa książka", "Interesujący autor", 2018, theList);
         bookRepository.save(book1);
-        BookCopy bookCopy1 = new BookCopy(book1, RentalStatus.AVAILABLE);
-        bookCopyRepository.save(bookCopy1);
-        BookCopy bookCopy2 = new BookCopy(book1, RentalStatus.NEW);
-        bookCopyRepository.save(bookCopy2);
 
         //When
         List<BookCopy> test = dbService.getAllBookCopies();
@@ -208,22 +207,21 @@ public class DbServiceTest {
         assertEquals(2, test.size());
 
         //CleanUp
-        bookRepository.deleteById(book1.getId());
-        bookCopyRepository.deleteById(bookCopy1.getId());
-        bookCopyRepository.deleteById(bookCopy2.getId());
+         bookCopyRepository.deleteById(book1.getBookCopies().get(0).getId());
+         bookCopyRepository.deleteById(book1.getBookCopies().get(1).getId());
+         bookRepository.deleteById(book1.getId());
     }
 
     @Test
     public void getBookCopyById() {
 
         //Given
-        Book book1 = new Book("Ciekawa książka", "Interesujący autor", 2018);
+        List<BookCopy> theList = new ArrayList<>();
+        theList.add(new BookCopy(RentalStatus.AVAILABLE));
+        theList.add(new BookCopy(RentalStatus.NEW));
+        Book book1 = new Book("Ciekawa książka", "Interesujący autor", 2018, theList);
         bookRepository.save(book1);
-        BookCopy bookCopy1 = new BookCopy(book1, RentalStatus.AVAILABLE);
-        BookCopy bookCopy2 = new BookCopy(book1, RentalStatus.NEW);
-        bookCopyRepository.save(bookCopy1);
-        bookCopyRepository.save(bookCopy2);
-        Long id = bookCopy2.getId();
+        Long id = theList.get(1).getId();
 
         //When
         BookCopy test = dbService.getBookCopyById(id);
@@ -232,9 +230,9 @@ public class DbServiceTest {
         assertEquals(RentalStatus.NEW, test.getRentalStatus());
 
         //CleanUp
+        bookCopyRepository.deleteById(book1.getBookCopies().get(0).getId());
+        bookCopyRepository.deleteById(book1.getBookCopies().get(1).getId());
         bookRepository.deleteById(book1.getId());
-        bookCopyRepository.deleteById(bookCopy1.getId());
-        bookCopyRepository.deleteById(bookCopy2.getId());
     }
 
     @Test
@@ -254,9 +252,9 @@ public class DbServiceTest {
         assertEquals(2, dbService.getAllBookCopies().size());
 
         //CleanUp
-        bookRepository.deleteById(book1.getId());
         bookCopyRepository.deleteById(bookCopy1.getId());
         bookCopyRepository.deleteById(bookCopy2.getId());
+        bookRepository.deleteById(book1.getId());
     }
 
     @Test
@@ -278,20 +276,82 @@ public class DbServiceTest {
         assertEquals(0, dbService.getAllBookCopies().size());
 
         //CleanUp
-        dbService.deleteBook(book1.getId());
-
+        bookRepository.deleteById(book1.getId());
     }
 
     @Test
     public void updateRentalStatus() {
+
+        //Given
+        List<BookCopy> theList = new ArrayList<>();
+        theList.add(new BookCopy(RentalStatus.NEW));
+        Book book1 = new Book("Ciekawa książka", "Interesujący autor", 2018, theList);
+        bookRepository.save(book1);
+        bookCopyRepository.save(theList.get(0));
+        Long id = theList.get(0).getId();
+
+        //When
+        dbService.updateRentalStatus(id, RentalStatus.AVAILABLE);
+
+        //Then
+        assertEquals(RentalStatus.AVAILABLE, dbService.getBookCopyById(id).getRentalStatus());
+
+        //CleanUp
+        bookCopyRepository.deleteById(book1.getBookCopies().get(0).getId());
+        bookRepository.deleteById(book1.getId());
     }
 
     @Test
     public void countAvailableBookCopies() {
+
+        //Given
+        Book book1 = new Book("Ciekawa książka", "Interesujący autor", 2018);
+        bookRepository.save(book1);
+        BookCopy bookCopy1 = new BookCopy(book1, RentalStatus.AVAILABLE);
+        BookCopy bookCopy2 = new BookCopy(book1, RentalStatus.AVAILABLE);
+        BookCopy bookCopy3 = new BookCopy(book1, RentalStatus.NEW);
+        bookCopyRepository.save(bookCopy1);
+        bookCopyRepository.save(bookCopy2);
+        bookCopyRepository.save(bookCopy3);
+
+        //When
+        Long count = dbService.countAvailableBookCopies("Ciekawa książka");
+
+        //Then
+        assertEquals(2, count, 0);
+
+        //CleanUp
+        bookCopyRepository.deleteById(bookCopy1.getId());
+        bookCopyRepository.deleteById(bookCopy2.getId());
+        bookCopyRepository.deleteById(bookCopy3.getId());
+        bookRepository.deleteById(book1.getId());
     }
 
     @Test
     public void getAllBorrowedBooks() {
+
+        //Given
+        Book book1 = new Book("Ciekawa książka", "Interesujący autor", 2018);
+        bookRepository.save(book1);
+        BookCopy bookCopy1 = new BookCopy(book1, RentalStatus.AVAILABLE);
+        bookCopyRepository.save(bookCopy1);
+        User user1 = new User("Iza", "Testowa", LocalDate.now());
+        userRepository.save(user1);
+        BorrowedBook borrowedBook1 = new BorrowedBook(bookCopy1, user1, LocalDate.now
+                (), LocalDate.now());
+        dbService.saveBorrowedBook(borrowedBook1);
+
+        //When
+        List<BorrowedBook> test = dbService.getAllBorrowedBooks();
+
+        //Then
+        assertEquals(1, test.size());
+
+        //CleanUp
+        borrowedBookRepository.delete(borrowedBook1);
+        bookCopyRepository.deleteById(bookCopy1.getId());
+        userRepository.deleteById(user1.getId());
+        bookRepository.deleteById(book1.getId());
     }
 
     @Test
@@ -299,27 +359,51 @@ public class DbServiceTest {
 
         //Given
         Book book1 = new Book("Ciekawa książka", "Interesujący autor", 2018);
-        BookCopy bookCopy1 = new BookCopy(book1, RentalStatus.AVAILABLE);
+        bookRepository.save(book1);
+        BookCopy bookCopy1 = new BookCopy(book1, RentalStatus.NEW);
+        bookCopyRepository.save(bookCopy1);
         User user1 = new User("Iza", "Testowa", LocalDate.now());
-        dbService.saveBook(book1);
-        dbService.saveBookCopy(bookCopy1);
-        dbService.saveUser(user1);
-        BorrowedBook borrowedBook1 = new BorrowedBook(bookCopy1, user1, LocalDate.now
-                (), LocalDate.now());
+        userRepository.save(user1);
+        BorrowedBook borrowedBook1 = new BorrowedBook(bookCopy1, user1, LocalDate.now(), LocalDate.of(2999, 12,31));
 
         //When
         dbService.saveBorrowedBook(borrowedBook1);
 
         //Then
         assertEquals(1, dbService.getAllBorrowedBooks().size());
+        assertEquals(RentalStatus.BORROWED, bookCopy1.getRentalStatus());
 
         //CleanUp
-        bookRepository.deleteById(book1.getId());
+        borrowedBookRepository.delete(borrowedBook1);
         bookCopyRepository.deleteById(bookCopy1.getId());
         userRepository.deleteById(user1.getId());
+        bookRepository.deleteById(book1.getId());
     }
 
     @Test
     public void returnBorrowedBook() {
+
+        //Given
+        Book book1 = new Book("Ciekawa książka", "Interesujący autor", 2018);
+        bookRepository.save(book1);
+        BookCopy bookCopy1 = new BookCopy(book1, RentalStatus.NEW);
+        bookCopyRepository.save(bookCopy1);
+        User user1 = new User("Iza", "Testowa", LocalDate.now());
+        userRepository.save(user1);
+        BorrowedBook borrowedBook1 = new BorrowedBook(bookCopy1, user1, LocalDate.now(), LocalDate.of(1990, 12,31));
+        dbService.saveBorrowedBook(borrowedBook1);
+
+        //When
+        dbService.returnBorrowedBook(borrowedBook1.getId());
+
+        //Then
+        assertEquals(RentalStatus.AVAILABLE, dbService.getAllBorrowedBooks().get(0).getBookCopy().getRentalStatus());
+        assertEquals(LocalDate.now(), dbService.getAllBorrowedBooks().get(0).getReturnBookDate());
+
+        //CleanUp
+        borrowedBookRepository.delete(borrowedBook1);
+        bookCopyRepository.deleteById(bookCopy1.getId());
+        userRepository.deleteById(user1.getId());
+        bookRepository.deleteById(book1.getId());
     }
 }
